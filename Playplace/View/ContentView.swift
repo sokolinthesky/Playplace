@@ -2,9 +2,11 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    let imageExtensions = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]
+    
     @Environment(\.modelContext) var modelContext
-    @State private var importing = false
-    @State private var importingMedia = false
+    @State private var importingLibrary = false
+    @State private var importingImages = false
     
     var body: some View {
         NavigationStack {
@@ -18,10 +20,10 @@ struct ContentView: View {
                 ToolbarItemGroup(placement: .bottomBar) {
                     
                     Button("Import") {
-                        importing = true
+                        importingLibrary = true
                     }
                     .fileImporter(
-                        isPresented: $importing,
+                        isPresented: $importingLibrary,
                         allowedContentTypes: [.json]
                     ) { result in
                         switch result {
@@ -32,12 +34,12 @@ struct ContentView: View {
                         }
                     }
                     
-                    Button("Import Image") {
-                        importingMedia.toggle()
+                    Button("Import images") {
+                        importingImages.toggle()
                     }
                     .fileImporter(
-                        isPresented: $importingMedia,
-                        allowedContentTypes: [.image],
+                        isPresented: $importingImages,
+                        allowedContentTypes: [.folder, .image],
                         allowsMultipleSelection: true
                     ) { result in
                         switch result {
@@ -59,9 +61,9 @@ struct ContentView: View {
     
     func importLibrary(url: URL) {
         do {
-            let gamesToLoad: [Game] = Bundle.main.decode(url)
+            let decodedGames: [Game] = Bundle.main.decode(url)
             try modelContext.delete(model: Game.self)
-            for game in gamesToLoad {
+            for game in decodedGames {
                 modelContext.insert(game)
             }
             try modelContext.save()
@@ -72,21 +74,43 @@ struct ContentView: View {
     
     func importImages(urls: [URL]) {
         for url in urls {
-            importImage(url)
+            var isDir: ObjCBool = false
+            FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
+            
+            if isDir.boolValue {
+                findAndImportImages(at: url)
+            } else {
+                importImage(from: url)
+            }
         }
     }
     
-    func importImage(_ url: URL) {
+    func importImage(from url: URL) {
         let fileManager = FileManager.default
         let libraryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("library")
         
         do {
             try fileManager.createDirectory(at: libraryURL, withIntermediateDirectories: true, attributes: nil)
-
+            
             try fileManager.copyItem(at: url, to: libraryURL.appendingPathComponent(url.lastPathComponent))
-            print("Image imported to: \(libraryURL)")
         } catch {
-            print("Error importing image: \(error)")
+            fatalError("Error importing image: \(error)")
+        }
+    }
+    
+    private func findAndImportImages(at directory: URL) {
+        do {
+            let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            
+            for file in files {
+                if file.hasDirectoryPath {
+                    findAndImportImages(at: file)
+                } else if imageExtensions.contains(file.pathExtension) {
+                    importImage(from: file)
+                }
+            }
+        } catch {
+            fatalError("Error while enumerating files: \(error.localizedDescription)")
         }
     }
 }

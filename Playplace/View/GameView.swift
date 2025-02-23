@@ -35,8 +35,7 @@ struct GameView: View {
             let imagePath = game.coverImage?.components(separatedBy: "\\") ?? []
             let imageFilename = imagePath.last ?? ""
             if !imageFilename.isEmpty {
-                let fileManager = FileManager.default
-                let imageURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                let imageURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                     .appendingPathComponent("library/\(imageFilename)")
                 if let data = try? Data(contentsOf: imageURL), let uiImage = UIImage(data: data) {
                     cover = Image(uiImage: uiImage)
@@ -49,5 +48,5 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView(game: Game(imageCover: "folder\\541ecf54-c50f-4af8-a009-6a564d79143b.jpg"))
+    GameView(game: Game(imageCover: "folder\\3088156708.jpg"))
 }
