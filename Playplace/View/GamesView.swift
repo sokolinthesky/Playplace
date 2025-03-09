@@ -29,6 +29,7 @@ struct GamesView: View {
                 }
             }
         }
+        .padding([.horizontal], 1)
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
                 

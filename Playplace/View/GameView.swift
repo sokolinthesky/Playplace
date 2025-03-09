@@ -12,7 +12,7 @@ struct GameView: View {
             cover
                 .resizable()
                 .scaledToFill()
-                .frame(width: 130, height: 170)
+                .frame(width: 124, height: 170)
                 .cornerRadius(10)
                 .shadow(radius: 5)
                 .overlay {

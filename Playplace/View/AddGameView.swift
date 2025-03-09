@@ -45,14 +45,22 @@ struct AddGameView: View {
                 }
                 
                 Section("Platforms") {
+                    
+                    if !selectedPlatforms.isEmpty {
+                        PlatformsView(selectedPlatforms: selectedPlatforms)
+                    }
+                    
                     Button(action: {
                         showPlatformSelection.toggle()
                     }) {
                         Text("Select Game Platforms")
+                            .foregroundColor(.white)
                             .font(.headline)
+                            .frame(maxWidth: .infinity)
                             .padding()
-                            .cornerRadius(8)
+                            .background(.blue)
                     }
+                    .cornerRadius(6)
                 }
                 
                 Button("Add game") {
@@ -111,6 +119,27 @@ struct PlatformSelectionView: View {
         }
     }
 }
+
+struct PlatformsView: View {
+    let selectedPlatforms: Set<Platform>
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                ForEach(Array(selectedPlatforms), id: \.id) { platform in
+                    Text("\(platform.name ?? "no name")")
+                        .padding(5)
+                        .background(
+                            Capsule()
+                                .fill(Color.blue)
+                        )
+                        .foregroundColor(.white)
+                }
+            }
+        }
+    }
+}
+
 
 #Preview {
     AddGameView()
