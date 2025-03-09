@@ -24,4 +24,19 @@ extension Bundle {
             fatalError("Failed to decode \(url) from bundle: \(error.localizedDescription), errorDesc: \(error)")
         }
     }
+    
+    public func getDropboxAppKey() -> String? {
+        if let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] {
+            for urlType in urlTypes {
+                if let urlSchemes = urlType["CFBundleURLSchemes"] as? [String] {
+                    for urlScheme in urlSchemes {
+                        if urlScheme.hasPrefix("db-") {
+                            return urlScheme.replacingOccurrences(of: "db-", with: "")
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
 }
