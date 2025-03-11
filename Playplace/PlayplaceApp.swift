@@ -14,6 +14,7 @@ struct PlayplaceApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)
         }
         .modelContainer(for: Game.self)
         

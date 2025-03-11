@@ -21,6 +21,16 @@ class Platform: Codable, IdentifiableString {
         self.name = ""
     }
     
+    init(id: String, name: String) {
+        self.id = id
+        self.name = name
+        self.specificationId = ""
+        self.icon = nil
+        self.cover = nil
+        self.background = nil
+    }
+
+    
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         specificationId = try container.decodeIfPresent(String.self, forKey: .specificationId)

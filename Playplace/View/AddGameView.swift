@@ -32,12 +32,12 @@ struct AddGameView: View {
                             .keyboardType(.numberPad)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 80)
-                        Text("hour(s)")
+                        Text("h")
                         TextField("Minutes", text: $minutesInput)
                             .keyboardType(.numberPad)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 80)
-                        Text("minutes(s)")
+                        Text("min")
                     }
                     Text("Total seconds \(totalSeconds)")
                         .foregroundStyle(.gray)
@@ -119,27 +119,6 @@ struct PlatformSelectionView: View {
         }
     }
 }
-
-struct PlatformsView: View {
-    let selectedPlatforms: Set<Platform>
-    
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-                ForEach(Array(selectedPlatforms), id: \.id) { platform in
-                    Text("\(platform.name ?? "no name")")
-                        .padding(5)
-                        .background(
-                            Capsule()
-                                .fill(Color.blue)
-                        )
-                        .foregroundColor(.white)
-                }
-            }
-        }
-    }
-}
-
 
 #Preview {
     AddGameView()
