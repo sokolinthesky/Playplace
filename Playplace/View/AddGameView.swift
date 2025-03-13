@@ -23,21 +23,18 @@ struct AddGameView: View {
     var body: some View {
         NavigationView {
             Form {
-                
                 TextField("Name:", text: $name)
                 
                 Section("Playtime") {
                     HStack {
-                        TextField("Hours", text: $hoursInput)
+                        Text("Hours:")
+                        TextField("0", text: $hoursInput)
                             .keyboardType(.numberPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 80)
-                        Text("h")
-                        TextField("Minutes", text: $minutesInput)
+                        Text("Minutes:")
+                        TextField("0", text: $minutesInput)
                             .keyboardType(.numberPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 80)
-                        Text("min")
                     }
                     Text("Total seconds \(totalSeconds)")
                         .foregroundStyle(.gray)
@@ -45,7 +42,6 @@ struct AddGameView: View {
                 }
                 
                 Section("Platforms") {
-                    
                     if !selectedPlatforms.isEmpty {
                         PlatformsView(selectedPlatforms: selectedPlatforms)
                     }
@@ -54,19 +50,23 @@ struct AddGameView: View {
                         showPlatformSelection.toggle()
                     }) {
                         Text("Select Game Platforms")
-                            .foregroundColor(.white)
                             .font(.headline)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(.blue)
                     }
                     .cornerRadius(6)
                 }
                 
-                Button("Add game") {
+                
+                Button("Add Game") {
                     addGame()
                     dismiss()
                 }
+                .foregroundColor(.white)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.green)
+                .cornerRadius(6)
             }
             .sheet(isPresented: $showPlatformSelection) {
                 PlatformSelectionView(selectedPlatforms: $selectedPlatforms, allPlatforms: allPlatforms)
@@ -122,4 +122,5 @@ struct PlatformSelectionView: View {
 
 #Preview {
     AddGameView()
+        .preferredColorScheme(.dark)
 }
