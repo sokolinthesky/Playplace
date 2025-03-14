@@ -44,9 +44,13 @@ struct PlayTimeView : View {
     var hoursMinutes: (hours: Int, minutes: Int)
     
     var body: some View {
-        Text("Playtime: \(hoursMinutes.hours)h \(hoursMinutes.minutes)m")
-            .foregroundStyle(.primary)
-            .font(.headline)
+        HStack {
+            Text("Playtime:")
+            Text("\(hoursMinutes.hours)h \(hoursMinutes.minutes)m")
+                .foregroundColor(.green)
+        }
+        .foregroundStyle(.primary)
+        .font(.headline)
     }
 }
 
