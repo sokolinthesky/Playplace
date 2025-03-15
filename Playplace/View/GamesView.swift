@@ -24,12 +24,18 @@ struct GamesView: View {
         .padding([.horizontal], 1)
     }
     
-    init(sortOrder: [SortDescriptor<Game>]) {
-        _games = Query(sort: sortOrder)
+    init(searchText: String, sortOrder: [SortDescriptor<Game>]) {
+        _games = Query(filter: #Predicate<Game> { game in
+            if searchText.isEmpty {
+                return true
+            } else {
+                return game.name?.localizedStandardContains(searchText) ?? false
+            }
+        }, sort: sortOrder)
     }
 }
 
 #Preview {
-    GamesView(sortOrder: [SortDescriptor(\Game.name)])
+    GamesView(searchText: "", sortOrder: [SortDescriptor(\Game.name)])
         .modelContainer(for: Game.self)
 }

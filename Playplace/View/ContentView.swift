@@ -3,15 +3,21 @@ import SwiftUI
 
 struct ContentView: View {
     
+    @State private var searchText = ""
+    @State private var isSearchActive = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
                 ScrollView {
-                    GamesView(sortOrder: [SortDescriptor(\Game.name)])
+                    GamesView(searchText: searchText, sortOrder: [SortDescriptor(\Game.name)])
+                        .searchable(text: $searchText, isPresented: $isSearchActive, placement: .automatic)
                 }
                 .navigationDestination(for: Game.self) { game in
                     GameDetailView(game: game)
                 }
+                .navigationTitle("Library")
+                .navigationBarTitleDisplayMode(.inline)
                 
                 VStack {
                     Spacer()
@@ -21,7 +27,8 @@ struct ContentView: View {
                         Spacer()
                         
                         Button(action: {
-                            //todo: impl search
+                            searchText = ""
+                            isSearchActive.toggle()
                         }) {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
