@@ -75,6 +75,7 @@ struct LibraryManagmentButtonView: View {
         ) { result in
             switch result {
             case .success(let urls):
+                getAccess(urls: urls)
                 if importingLibrary {
                     importService.importLibrary(url: urls.first!, modelContext: modelContext)
                     importingLibrary.toggle()
@@ -82,6 +83,7 @@ struct LibraryManagmentButtonView: View {
                     importService.importImages(urls: urls)
                     importingImages.toggle()
                 }
+                stopAccess(urls: urls)
             case .failure(let error):
                 fatalError("Import error: \(error.localizedDescription)")
             }
@@ -144,6 +146,19 @@ struct LibraryManagmentButtonView: View {
             .progress { progressData in
                 print(progressData)
             }
+    }
+    
+    func getAccess(urls: [URL]) {
+        for url in urls {
+            let gotAccess = url.startAccessingSecurityScopedResource()
+            if !gotAccess { return }
+        }
+    }
+    
+    func stopAccess(urls: [URL]) {
+        for url in urls {
+            url.stopAccessingSecurityScopedResource()
+        }
     }
 }
 

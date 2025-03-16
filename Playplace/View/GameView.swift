@@ -22,7 +22,9 @@ struct GameView: View {
             
         }
         .onAppear {
-            loadImage(game: game)
+            Task {
+                await loadImage(game: game)
+            }
         }
     }
     
@@ -30,7 +32,7 @@ struct GameView: View {
         self.game = game
     }
     
-    func loadImage(game: Game) {
+    func loadImage(game: Game) async {
         if game.coverImage != nil && !game.coverImage!.isEmpty {
             let imagePath = game.coverImage?.components(separatedBy: "\\") ?? []
             let imageFilename = imagePath.last ?? ""
