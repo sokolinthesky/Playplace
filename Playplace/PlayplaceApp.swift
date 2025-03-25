@@ -6,17 +6,22 @@ import os
 @main
 struct PlayplaceApp: App {
     let log = Logger()
+    let modelContainer: ModelContainer
     
     init() {
+        do {
+            self.modelContainer = try ModelContainer(for: Game.self)
+        } catch {
+            fatalError("Error to init model container")
+        }
         initDropbox()
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(modelContext: modelContainer.mainContext)
                 .preferredColorScheme(.dark)
         }
-        .modelContainer(for: Game.self)
         
     }
     

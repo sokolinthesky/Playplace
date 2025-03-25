@@ -5,37 +5,67 @@ struct GamesView: View {
     let layout = [
         GridItem(.adaptive(minimum: 120))
     ]
-    
-    @State private var importingLibrary = false
-    @State private var importingImages = false
-    @State private var exportingLibrary = false
-    @State private var showAddGameView = false
-    
-    @Query var games: [Game]
+
+    @State private var isSearchActive = false    
+    @StateObject private var viewModel: GamesViewModel
     
     var body: some View {
-        LazyVGrid(columns: layout) {
-            ForEach(games, id: \.id) { game in
-                NavigationLink(value: game) {
-                    GameView(game: game)
+        ZStack {
+            ScrollView {
+                LazyVGrid(columns: layout) {
+                    ForEach(viewModel.searchText.isEmpty ? viewModel.games : viewModel.filteredGames, id: \.id) { game in
+                        NavigationLink(value: game) {
+                            GameView(game: game)
+                        }
+                    }
+                }
+                .padding([.horizontal], 1)
+                .searchable(text: $viewModel.searchText, isPresented: $isSearchActive, placement: .automatic)
+                .task {
+                    await viewModel.fetchGames()
+                }
+            }
+            
+            VStack {
+                Spacer()
+                HStack {
+                    LibraryManagmentButtonView()
+                    
+                    Spacer()
+                    
+                        Button(action: {
+                            isSearchActive.toggle()
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .clipShape(Circle())
+                                .shadow(radius: 5)
+                        }
+                        .padding(.trailing)
                 }
             }
         }
-        .padding([.horizontal], 1)
     }
     
-    init(searchText: String, sortOrder: [SortDescriptor<Game>]) {
-        _games = Query(filter: #Predicate<Game> { game in
-            if searchText.isEmpty {
-                return true
-            } else {
-                return game.name?.localizedStandardContains(searchText) ?? false
-            }
-        }, sort: sortOrder)
+    init(modelContext: ModelContext) {
+        let gamesViewModel = GamesViewModel(modelContext: modelContext)
+        _viewModel = StateObject(wrappedValue: gamesViewModel)
     }
 }
 
 #Preview {
-    GamesView(searchText: "", sortOrder: [SortDescriptor(\Game.name)])
-        .modelContainer(for: Game.self)
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Game.self, configurations: config)
+        
+        return GamesView(modelContext: container.mainContext)
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }

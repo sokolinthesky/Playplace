@@ -2,52 +2,32 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    var modelContext: ModelContext
     
-    @State private var searchText = ""
-    @State private var isSearchActive = false
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScrollView {
-                    GamesView(searchText: searchText, sortOrder: [SortDescriptor(\Game.name)])
-                        .searchable(text: $searchText, isPresented: $isSearchActive, placement: .automatic)
-                }
+            GamesView(modelContext: modelContext)
                 .navigationDestination(for: Game.self) { game in
                     GameDetailView(game: game)
                 }
                 .navigationTitle("Library")
                 .navigationBarTitleDisplayMode(.inline)
-                
-                VStack {
-                    Spacer()
-                    HStack {
-                        LibraryManagmentButtonView()
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            searchText = ""
-                            isSearchActive.toggle()
-                        }) {
-                            Image(systemName: "magnifyingglass")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .clipShape(Circle())
-                                .shadow(radius: 5)
-                        }
-                        .padding(.trailing)
-                    }
-                }
             }
-        }
     }
 }
 
 #Preview {
-    ContentView()
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Game.self, configurations: config)
+        
+        return ContentView(modelContext: container.mainContext)
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }
