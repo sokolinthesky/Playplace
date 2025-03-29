@@ -8,7 +8,8 @@ struct LibraryManagmentButtonView: View {
     let logger = Logger()
     let importService = ImportService()
     
-    @Environment(\.modelContext) var modelContext
+    var modelContext: ModelContext
+    var gamesViewModel: GamesViewModel
     
     @State private var importing = false;
     @State private var importingLibrary = false
@@ -102,7 +103,7 @@ struct LibraryManagmentButtonView: View {
             }
         }
         .sheet(isPresented: $showAddGameView) {
-            AddGameView()
+            AddGameView(modelContext: modelContext, gamesViewModel: gamesViewModel)
         }
     }
     
@@ -163,5 +164,13 @@ struct LibraryManagmentButtonView: View {
 }
 
 #Preview {
-    LibraryManagmentButtonView()
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Game.self, configurations: config)
+        
+        return LibraryManagmentButtonView(modelContext: container.mainContext, gamesViewModel: GamesViewModel(modelContext: container.mainContext))
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }

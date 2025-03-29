@@ -53,4 +53,15 @@ final class GamesViewModel: ObservableObject {
             log.warning("Filter failed \(error)")
         }
     }
+    
+    func addGame(name: String, totalSeconds: Int, selectedPlatforms: Set<Platform>) {
+        let game = Game(imageCover: "")
+        game.name = name
+        game.platforms = Array(selectedPlatforms)
+        game.playtime = totalSeconds
+        modelContext.insert(game)
+        Task {
+            await fetchGames()
+        }
+    }
 }

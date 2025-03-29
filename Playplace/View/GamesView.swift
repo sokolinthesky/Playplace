@@ -5,6 +5,8 @@ struct GamesView: View {
     let layout = [
         GridItem(.adaptive(minimum: 120))
     ]
+    
+    var modelContext: ModelContext
 
     @State private var isSearchActive = false    
     @StateObject private var viewModel: GamesViewModel
@@ -25,11 +27,14 @@ struct GamesView: View {
                     await viewModel.fetchGames()
                 }
             }
+            .refreshable {
+                await viewModel.fetchGames()
+            }
             
             VStack {
                 Spacer()
                 HStack {
-                    LibraryManagmentButtonView()
+                    LibraryManagmentButtonView(modelContext: modelContext, gamesViewModel: viewModel)
                     
                     Spacer()
                     
@@ -53,6 +58,7 @@ struct GamesView: View {
     }
     
     init(modelContext: ModelContext) {
+        self.modelContext = modelContext
         let gamesViewModel = GamesViewModel(modelContext: modelContext)
         _viewModel = StateObject(wrappedValue: gamesViewModel)
     }

@@ -4,7 +4,8 @@ import SwiftUI
 struct GameView: View {
     @Bindable var game: Game
     
-    @State var coverName = ""
+    @State private var coverName = ""
+    @State private var isCoverImagedLoaded = false
     @State private var cover: Image = Image("default-cover")
     
     var body: some View {
@@ -13,18 +14,17 @@ struct GameView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 124, height: 170)
-                .cornerRadius(10)
                 .shadow(radius: 5)
                 .overlay {
-                    Text(coverName)
-                        .foregroundStyle(.white)
+                    if !isCoverImagedLoaded {
+                        Text(coverName)
+                            .foregroundStyle(.white)
+                    }
                 }
             
         }
         .onAppear {
-            Task {
-                await loadImage(game: game)
-            }
+            loadImage(game: game)
         }
     }
     
@@ -32,20 +32,50 @@ struct GameView: View {
         self.game = game
     }
     
-    func loadImage(game: Game) async {
-        if game.coverImage != nil && !game.coverImage!.isEmpty {
-            let imagePath = game.coverImage?.components(separatedBy: "\\") ?? []
-            let imageFilename = imagePath.last ?? ""
-            if !imageFilename.isEmpty {
-                let imageURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                    .appendingPathComponent("library/\(imageFilename)")
-                if let data = try? Data(contentsOf: imageURL), let uiImage = UIImage(data: data) {
-                    cover = Image(uiImage: uiImage)
-                    return
-                }
+    func loadImage(game: Game) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.coverName = game.name ?? "No Name"
+            
+            if game.coverImage == nil || game.coverImage!.isEmpty {
+                return
+            }
+            
+            let imageFilename = game.coverImage!.localizedStandardContains("\\") ?
+            game.coverImage!.components(separatedBy: "\\").last! : game.coverImage!
+            
+            if imageFilename.isEmpty {
+                return
+            }
+            
+            let imageURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("library/\(imageFilename)")
+            if let data = try? Data(contentsOf: imageURL), let uiImage = UIImage(data: data) {
+                let resizedImage = resizeImage(image: uiImage, targetSize: CGSize(width: 300, height: 300))
+                cover = Image(uiImage: resizedImage)
+                isCoverImagedLoaded = true
             }
         }
-        self.coverName = game.name ?? "No Name"
+    }
+    
+    private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        
+        // Determine what ratio to use to ensure the image fits within the target size
+        let ratio = min(widthRatio, heightRatio)
+        
+        // Calculate the new size
+        let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+        
+        // Resize the image
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage ?? image
     }
 }
 

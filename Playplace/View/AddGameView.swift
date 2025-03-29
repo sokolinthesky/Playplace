@@ -1,24 +1,27 @@
 import SwiftData
 import SwiftUI
+import os
 
 struct AddGameView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
+    let log = Logger()
     
-    @Query(sort: \Platform.name) var allPlatforms: [Platform]
+    @Environment(\.dismiss) var dismiss
+    
+    var modelContext: ModelContext
+    var gamesViewModel: GamesViewModel
     
     @State private var name = ""
     @State private var hoursInput: String = ""
     @State private var minutesInput: String = ""
+    @State private var allPlatforms: [Platform] = []
+    @State private var selectedPlatforms: Set<Platform> = []
+    @State private var showPlatformSelection = false
     
     var totalSeconds: Int {
         let hours = Int(hoursInput) ?? 0
         let minutes = Int(minutesInput) ?? 0
         return (hours * 3600) + (minutes * 60)
     }
-    
-    @State private var selectedPlatforms: Set<Platform> = []
-    @State private var showPlatformSelection = false
     
     var body: some View {
         NavigationView {
@@ -58,7 +61,7 @@ struct AddGameView: View {
                 
                 
                 Button("Add Game") {
-                    addGame()
+                    gamesViewModel.addGame(name: name, totalSeconds: totalSeconds, selectedPlatforms: selectedPlatforms)
                     dismiss()
                 }
                 .foregroundColor(.white)
@@ -67,6 +70,9 @@ struct AddGameView: View {
                 .padding()
                 .background(Color.green)
                 .cornerRadius(6)
+            }
+            .onAppear {
+                fetchPlatforms()
             }
             .sheet(isPresented: $showPlatformSelection) {
                 PlatformSelectionView(selectedPlatforms: $selectedPlatforms, allPlatforms: allPlatforms)
@@ -77,12 +83,12 @@ struct AddGameView: View {
         
     }
     
-    func addGame() {
-        let game = Game(imageCover: "")
-        game.name = name
-        game.platforms = Array(selectedPlatforms)
-        game.playtime = totalSeconds
-        modelContext.insert(game)
+    func fetchPlatforms() {
+        do {
+            allPlatforms = try modelContext.fetch(FetchDescriptor<Platform>(sortBy: [SortDescriptor(\Platform.name)]))
+        } catch {
+            log.warning("Platforms fetch failed \(error)")
+        }
     }
 }
 
@@ -121,6 +127,14 @@ struct PlatformSelectionView: View {
 }
 
 #Preview {
-    AddGameView()
-        .preferredColorScheme(.dark)
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Game.self, configurations: config)
+        
+        return AddGameView(modelContext: container.mainContext, gamesViewModel: GamesViewModel(modelContext: container.mainContext))
+            .preferredColorScheme(.dark)
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }
