@@ -55,6 +55,10 @@ struct LibraryManagmentButtonView: View {
                     uploadLibraryToDropbox()
                 }
                 
+                Button("Dropbox Download") {
+                    downloadFromDropbox()
+                }
+                
                 Button("Add Game") { showAddGameView.toggle() }
             } label: {
                 Image(systemName: "folder")
@@ -80,6 +84,7 @@ struct LibraryManagmentButtonView: View {
                 if importingLibrary {
                     importService.importLibrary(url: urls.first!, modelContext: modelContext)
                     importingLibrary.toggle()
+                    refreshGames()
                 } else if importingImages {
                     importService.importImages(urls: urls)
                     importingImages.toggle()
@@ -145,7 +150,7 @@ struct LibraryManagmentButtonView: View {
                 }
             }
             .progress { progressData in
-                print(progressData)
+                logger.info("\(progressData)")
             }
     }
     
@@ -159,6 +164,38 @@ struct LibraryManagmentButtonView: View {
     func stopAccess(urls: [URL]) {
         for url in urls {
             url.stopAccessingSecurityScopedResource()
+        }
+    }
+    
+    private func downloadFromDropbox() {
+        guard let client = DropboxClientsManager.authorizedClient else {
+            logger.warning("Dropbox not authorized")
+            return
+        }
+        
+        client.files.download(path: "/library.json")
+            .response { response, error in
+                if let response = response {
+                    let fileContent = response.1
+                    
+                    let decodedGames = try? JSONDecoder().decode([Game].self, from: fileContent)
+                    
+                    importService.importLibrary(games: decodedGames ?? [], modelContext: modelContext)
+                    
+                    refreshGames()
+                    
+                } else if let error = error {
+                    logger.error("\(error.localizedDescription)")
+                }
+            }
+            .progress { progressData in
+                logger.info("\(progressData)")
+            }
+    }
+    
+    private func refreshGames() {
+        Task {
+            await gamesViewModel.fetchGames()
         }
     }
 }

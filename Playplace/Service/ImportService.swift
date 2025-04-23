@@ -5,10 +5,14 @@ struct ImportService {
     let imageExtensions = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]
     
     func importLibrary(url: URL, modelContext: ModelContext) {
+        let decodedGames: [Game] = Bundle.main.decode(url)
+        importLibrary(games: decodedGames, modelContext: modelContext)
+    }
+    
+    func importLibrary(games: [Game], modelContext: ModelContext) {
         do {
-            let decodedGames: [Game] = Bundle.main.decode(url)
             try modelContext.delete(model: Game.self)
-            for game in decodedGames {
+            for game in games {
                 game.platforms = fetchPlatforms(game: game, modelContext: modelContext)
                 modelContext.insert(game)
             }
