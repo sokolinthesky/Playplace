@@ -19,7 +19,7 @@ class Game: Hashable, Codable {
     var gameId: String?
     var pluginId: String?
     var includeLibraryPluginAction: Bool?
-//    var gameActions: String?
+    var gameActions: [GameAction]?
     var platformIds: [String]?
     var publisherIds: [String]?
     var developerIds: [String]?
@@ -28,7 +28,7 @@ class Game: Hashable, Codable {
     var tagIds: [String]?
     var featureIds: [String]?
     var links: [Link]?
-//    var roms: String?
+    var roms: [GameRom]?
     var isInstalling: Bool?
     var isUninstalling: Bool?
     var isLaunching: Bool?
@@ -104,7 +104,7 @@ class Game: Hashable, Codable {
         self.gameId = ""
         self.pluginId = ""
         self.includeLibraryPluginAction = false
-//        self.gameActions = nil
+        self.gameActions = []
         self.platformIds = []
         self.publisherIds = []
         self.developerIds = []
@@ -113,7 +113,7 @@ class Game: Hashable, Codable {
         self.tagIds = nil
         self.featureIds = []
         self.links = []
-//        self.roms = nil
+        self.roms = []
         self.isInstalling = false
         self.isUninstalling = false
         self.isLaunching = false
@@ -190,7 +190,7 @@ class Game: Hashable, Codable {
         case gameId = "GameId"
         case pluginId = "PluginId"
         case includeLibraryPluginAction = "IncludeLibraryPluginAction"
-//        case gameActions = "GameActions"
+        case gameActions = "GameActions"
         case platformIds = "PlatformIds"
         case publisherIds = "PublisherIds"
         case developerIds = "DeveloperIds"
@@ -199,7 +199,7 @@ class Game: Hashable, Codable {
         case tagIds = "TagIds"
         case featureIds = "FeatureIds"
         case links = "Links"
-//        case roms = "Roms"
+        case roms = "Roms"
         case isInstalling = "IsInstalling"
         case isUninstalling = "IsUninstalling"
         case isLaunching = "IsLaunching"
@@ -277,7 +277,7 @@ class Game: Hashable, Codable {
         gameId = try container.decodeIfPresent(String.self, forKey: .gameId)
         pluginId = try container.decodeIfPresent(String.self, forKey: .pluginId)
         includeLibraryPluginAction = try container.decodeIfPresent(Bool.self, forKey: .includeLibraryPluginAction)
-//        gameActions = try container.decodeIfPresent(String.self, forKey: .gameActions)
+        gameActions = try container.decodeIfPresent([GameAction].self, forKey: .gameActions)
         platformIds = try container.decodeIfPresent([String].self, forKey: .platformIds)
         publisherIds = try container.decodeIfPresent([String].self, forKey: .publisherIds)
         developerIds = try container.decodeIfPresent([String].self, forKey: .developerIds)
@@ -286,7 +286,7 @@ class Game: Hashable, Codable {
         tagIds = try container.decodeIfPresent([String].self, forKey: .tagIds)
         featureIds = try container.decodeIfPresent([String].self, forKey: .featureIds)
         links = try container.decodeIfPresent([Link].self, forKey: .links)
-//        roms = try container.decodeIfPresent(String.self, forKey: .roms)
+        roms = try container.decodeIfPresent([GameRom].self, forKey: .roms)
         isInstalling = try container.decodeIfPresent(Bool.self, forKey: .isInstalling)
         isUninstalling = try container.decodeIfPresent(Bool.self, forKey: .isUninstalling)
         isLaunching = try container.decodeIfPresent(Bool.self, forKey: .isLaunching)
@@ -362,10 +362,10 @@ class Game: Hashable, Codable {
         try container.encode(installDirectory, forKey: .installDirectory)
         try container.encode(lastActivity, forKey: .lastActivity)
         try container.encode(sortingName, forKey: .sortingName)
-        try container.encode(gameId, forKey: .gameId)
-        try container.encode(pluginId, forKey: .pluginId)
+        try container.encode(gameId?.isEmpty == true ? nil : gameId, forKey: .gameId)
+        try container.encode(pluginId?.isEmpty == true ? nil : pluginId, forKey: .pluginId)
         try container.encode(includeLibraryPluginAction, forKey: .includeLibraryPluginAction)
-//        try container.encode(gameActions, forKey: .gameActions)
+        try container.encode(gameActions, forKey: .gameActions)
         try container.encode(platformIds, forKey: .platformIds)
         try container.encode(publisherIds, forKey: .publisherIds)
         try container.encode(developerIds, forKey: .developerIds)
@@ -374,7 +374,7 @@ class Game: Hashable, Codable {
         try container.encode(tagIds, forKey: .tagIds)
         try container.encode(featureIds, forKey: .featureIds)
         try container.encode(links, forKey: .links)
-//        try container.encode(roms, forKey: .roms)
+        try container.encode(roms, forKey: .roms)
         try container.encode(isInstalling, forKey: .isInstalling)
         try container.encode(isUninstalling, forKey: .isUninstalling)
         try container.encode(isLaunching, forKey: .isLaunching)
@@ -386,13 +386,13 @@ class Game: Hashable, Codable {
         try container.encode(modified, forKey: .modified)
         try container.encode(playCount, forKey: .playCount)
         try container.encode(installSize, forKey: .installSize)
-        try container.encode(lastSizeScanDate, forKey: .lastSizeScanDate)
+        try container.encode(lastSizeScanDate?.isEmpty == true ? nil : lastSizeScanDate, forKey: .lastSizeScanDate)
         try container.encode(seriesIds, forKey: .seriesIds)
         try container.encode(version, forKey: .version)
         try container.encode(ageRatingIds, forKey: .ageRatingIds)
         try container.encode(regionIds, forKey: .regionIds)
-        try container.encode(sourceId, forKey: .sourceId)
-        try container.encode(completionStatusId, forKey: .completionStatusId)
+        try container.encode(sourceId?.isEmpty == true ? nil : sourceId, forKey: .sourceId)
+        try container.encode(completionStatusId?.isEmpty == true ? nil : completionStatusId, forKey: .completionStatusId)
         try container.encode(userScore, forKey: .userScore)
         try container.encode(criticScore, forKey: .criticScore)
         try container.encode(communityScore, forKey: .communityScore)
@@ -431,7 +431,7 @@ class Game: Hashable, Codable {
         try container.encode(installSizeGroup, forKey: .installSizeGroup)
         try container.encode(isCustomGame, forKey: .isCustomGame)
         try container.encode(installationStatus, forKey: .installationStatus)
-        try container.encode(id, forKey: .id)
+        try container.encode(id.isEmpty ? nil : id, forKey: .id)
         try container.encode(name, forKey: .name)
     }
     
@@ -440,7 +440,7 @@ class Game: Hashable, Codable {
         var releaseDate: String?
         
         init() {
-            self.releaseDate = ""
+            self.releaseDate = nil
         }
         
         required init(from decoder: Decoder) throws {
@@ -450,7 +450,7 @@ class Game: Hashable, Codable {
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(releaseDate, forKey: .releaseDate)
+            try container.encode(releaseDate?.isEmpty == true ? nil : releaseDate, forKey: .releaseDate)
         }
         
         private enum CodingKeys: String, CodingKey {
@@ -492,7 +492,7 @@ class Game: Hashable, Codable {
         var specificationId: String?
         
         init() {
-            self.id = ""
+            self.id = nil
             self.name = ""
             self.specificationId = ""
         }
@@ -506,7 +506,7 @@ class Game: Hashable, Codable {
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(id, forKey: .id)
+            try container.encode(id?.isEmpty == true ? nil : id, forKey: .id)
             try container.encode(name, forKey: .name)
             try container.encode(specificationId, forKey: .specificationId)
         }
@@ -519,12 +519,126 @@ class Game: Hashable, Codable {
     }
     
     @Model
+    class GameRom: Codable {
+        var name: String?
+        var path: String?
+        
+        init() {
+            self.name = ""
+            self.path = ""
+        }
+        
+        required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decodeIfPresent(String.self, forKey: .name)
+            path = try container.decodeIfPresent(String.self, forKey: .path)
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            try container.encode(path, forKey: .path)
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case name = "Name"
+            case path = "Path"
+        }
+    }
+    
+    @Model
+    class GameAction: Codable {
+        var type: Int?
+        var arguments: String?
+        var additionalArguments: String?
+        var overrideDefaultArgs: Bool?
+        var path: String?
+        var workingDir: String?
+        var name: String?
+        var isPlayAction: Bool?
+        var emulatorId: String?
+        var emulatorProfileId: String?
+        var trackingMode: Int?
+        var trackingPath: String?
+        var script: String?
+        var initialTrackingDelay: Int?
+        var trackingFrequency: Int?
+        
+        init () {
+            self.arguments = ""
+            self.additionalArguments = ""
+            self.overrideDefaultArgs = false
+            self.path = ""
+            self.workingDir = ""
+            self.name = ""
+            self.isPlayAction = false
+            self.emulatorId = ""
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case type = "Type"
+            case arguments = "Arguments"
+            case additionalArguments = "AdditionalArguments"
+            case overrideDefaultArgs = "OverrideDefaultArgs"
+            case path = "Path"
+            case workingDir = "WorkingDir"
+            case name = "Name"
+            case isPlayAction = "IsPlayAction"
+            case emulatorId = "EmulatorId"
+            case emulatorProfileId = "EmulatorProfileId"
+            case trackingMode = "TrackingMode"
+            case trackingPath = "TrackingPath"
+            case script = "Script"
+            case initialTrackingDelay = "InitialTrackingDelay"
+            case trackingFrequency = "TrackingFrequency"
+        }
+        
+        required init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            type = try container.decodeIfPresent(Int.self, forKey: .type)
+            arguments = try container.decodeIfPresent(String.self, forKey: .arguments)
+            additionalArguments = try container.decodeIfPresent(String.self, forKey: .additionalArguments)
+            overrideDefaultArgs = try container.decodeIfPresent(Bool.self, forKey: .overrideDefaultArgs)
+            path = try container.decodeIfPresent(String.self, forKey: .path)
+            workingDir = try container.decodeIfPresent(String.self, forKey: .workingDir)
+            name = try container.decodeIfPresent(String.self, forKey: .name)
+            isPlayAction = try container.decodeIfPresent(Bool.self, forKey: .isPlayAction)
+            emulatorId = try container.decodeIfPresent(String.self, forKey: .emulatorId)
+            emulatorProfileId = try container.decodeIfPresent(String.self, forKey: .emulatorProfileId)
+            trackingMode = try container.decodeIfPresent(Int.self, forKey: .trackingMode)
+            trackingPath = try container.decodeIfPresent(String.self, forKey: .trackingPath)
+            script = try container.decodeIfPresent(String.self, forKey: .script)
+            initialTrackingDelay = try container.decodeIfPresent(Int.self, forKey: .initialTrackingDelay)
+            trackingFrequency = try container.decodeIfPresent(Int.self, forKey: .trackingFrequency)
+        }
+        
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(type, forKey: .type)
+            try container.encode(arguments?.isEmpty == true ? nil : arguments, forKey: .arguments)
+            try container.encode(additionalArguments, forKey: .additionalArguments)
+            try container.encode(overrideDefaultArgs, forKey: .overrideDefaultArgs)
+            try container.encode(path?.isEmpty == true ? nil : path, forKey: .path)
+            try container.encode(workingDir?.isEmpty == true ? nil : workingDir, forKey: .workingDir)
+            try container.encode(name?.isEmpty == true ? nil : name, forKey: .name)
+            try container.encode(isPlayAction?.description ?? "false", forKey: .isPlayAction)
+            try container.encode(emulatorId?.isEmpty == true ? nil : emulatorId, forKey: .emulatorId)
+            try container.encode(emulatorProfileId?.isEmpty == true ? nil : emulatorProfileId, forKey: .emulatorProfileId)
+            try container.encode(trackingMode, forKey: .trackingMode)
+            try container.encode(trackingPath?.isEmpty == true ? nil : trackingPath, forKey: .trackingPath)
+            try container.encode(trackingFrequency, forKey: .trackingFrequency)
+            try container.encode(initialTrackingDelay, forKey: .initialTrackingDelay)
+            try container.encode(script, forKey: .script)
+        }
+    }
+    
+    @Model
     class IdName: Codable {
         var id: String?
         var name: String?
         
         init() {
-            self.id = ""
+            self.id = nil
             self.name = ""
         }
         
@@ -536,7 +650,7 @@ class Game: Hashable, Codable {
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(id, forKey: .id)
+            try container.encode(id?.isEmpty == true ? nil : id, forKey: .id)
             try container.encode(name, forKey: .name)
         }
         
