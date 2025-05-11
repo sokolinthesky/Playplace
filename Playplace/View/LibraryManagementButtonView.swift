@@ -115,7 +115,11 @@ struct LibraryManagmentButtonView: View {
     func createJSONDocument() -> JSONDocument {
         do {
             let games = try modelContext.fetch(FetchDescriptor<Game>())
-            let jsonData = try JSONEncoder().encode(games)
+            
+            let jsonEncoder = JSONEncoder()
+            jsonEncoder.outputFormatting = .prettyPrinted
+            let jsonData = try jsonEncoder.encode(games)
+            
             return JSONDocument(data: jsonData)
         } catch {
             fatalError("unable to create JSON document: \(error)")

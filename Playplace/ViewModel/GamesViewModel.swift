@@ -55,13 +55,41 @@ final class GamesViewModel: ObservableObject {
     }
     
     func addGame(name: String, totalSeconds: Int, selectedPlatforms: Set<Platform>) {
-        let game = Game(imageCover: "")
+        let game = Game()
         game.name = name
         game.platforms = Array(selectedPlatforms)
         game.playtime = totalSeconds
+        game.pluginId = "00000000-0000-0000-0000-000000000000" //todo plugin id?
+        let dateNow = getPayniteFormattedDateNow()
+        game.added = dateNow
+        game.modified = dateNow
+        game.sourceId = "00000000-0000-0000-0000-000000000000"
+        let completionStatus = getNotPlayedCompletionStatus()
+        game.completionStatusId = completionStatus.id
+        game.completionStatus = completionStatus
+        game.recentActivity = dateNow
+        
         modelContext.insert(game)
+        
         Task {
             await fetchGames()
+        }
+    }
+    
+    private func getPayniteFormattedDateNow() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSZ"
+        return formatter.string(from: Date())
+    }
+    
+    private func getNotPlayedCompletionStatus() -> IdName {
+        do {
+            let descriptor = FetchDescriptor<IdName>(
+                predicate: #Predicate { $0.name?.localizedStandardContains("Not Played") == true })
+            return try modelContext.fetch(descriptor).first ?? IdName(id: UUID().uuidString, name: "Not Played")
+        } catch {
+            log.warning("failed to get completion status: \(error)")
+            return IdName(id: UUID().uuidString, name: "Not Played")
         }
     }
 }

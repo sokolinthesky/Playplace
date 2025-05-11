@@ -88,6 +88,93 @@ class Game: Hashable, Codable {
     var id: String
     var name: String?
     
+    init() {
+        let gameId = UUID().uuidString
+        self.backgroundImage = nil
+        self.desc = nil
+        self.notes = nil
+        self.genreIds = nil
+        self.enableSystemHdr = false
+        self.hidden = false
+        self.favorite = false
+        self.icon = nil
+        self.coverImage = nil
+        self.installDirectory = nil
+        self.lastActivity = nil
+        self.sortingName = nil
+        self.gameId = gameId
+        self.pluginId = nil
+        self.includeLibraryPluginAction = false
+        self.gameActions = nil
+        self.platformIds = nil
+        self.publisherIds = nil
+        self.developerIds = nil
+        self.releaseDate = nil
+        self.categoryIds = nil
+        self.tagIds = nil
+        self.featureIds = nil
+        self.links = nil
+        self.roms = nil
+        self.isInstalling = false
+        self.isUninstalling = false
+        self.isLaunching = false
+        self.isRunning = false
+        self.isInstalled = false
+        self.overrideInstallState = false
+        self.playtime = 0
+        self.added = nil
+        self.modified = nil
+        self.playCount = 0
+        self.installSize = 0
+        self.lastSizeScanDate = nil
+        self.seriesIds = nil
+        self.version = nil
+        self.ageRatingIds = nil
+        self.regionIds = nil
+        self.sourceId = nil
+        self.completionStatusId = nil
+        self.userScore = nil
+        self.criticScore = nil
+        self.communityScore = nil
+        self.preScript = nil
+        self.postScript = nil
+        self.gameStartedScript = nil
+        self.useGlobalPostScript = false
+        self.useGlobalPreScript = false
+        self.useGlobalGameStartedScript = false
+        self.manual = nil
+        self.genres = nil
+        self.developers = nil
+        self.publishers = nil
+        self.tags = nil
+        self.features = nil
+        self.categories = nil
+        self.platforms = nil
+        self.series = nil
+        self.ageRatings = nil
+        self.regions = nil
+        self.source = nil
+        self.completionStatus = nil
+        self.releaseYear = nil
+        self.recentActivity = nil
+        self.userScoreRating = 0
+        self.communityScoreRating = 0
+        self.criticScoreRating = 0
+        self.userScoreGroup = nil
+        self.communityScoreGroup = nil
+        self.criticScoreGroup = nil
+        self.lastActivitySegment = nil
+        self.recentActivitySegment = nil
+        self.addedSegment = nil
+        self.modifiedSegment = nil
+        self.playtimeCategory = nil
+        self.installSizeGroup = nil
+        self.isCustomGame = true
+        self.installationStatus = nil
+        self.id = gameId
+        self.name = nil
+    }
+    
     init(imageCover: String) {
         self.backgroundImage = ""
         self.desc = ""
@@ -629,34 +716,6 @@ class Game: Hashable, Codable {
             try container.encode(trackingFrequency, forKey: .trackingFrequency)
             try container.encode(initialTrackingDelay, forKey: .initialTrackingDelay)
             try container.encode(script, forKey: .script)
-        }
-    }
-    
-    @Model
-    class IdName: Codable {
-        var id: String?
-        var name: String?
-        
-        init() {
-            self.id = nil
-            self.name = ""
-        }
-        
-        required init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            id = try container.decodeIfPresent(String.self, forKey: .id)
-            name = try container.decodeIfPresent(String.self, forKey: .name)
-        }
-        
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(id?.isEmpty == true ? nil : id, forKey: .id)
-            try container.encode(name, forKey: .name)
-        }
-        
-        private enum CodingKeys: String, CodingKey {
-            case id = "Id"
-            case name = "Name"
         }
     }
 }
